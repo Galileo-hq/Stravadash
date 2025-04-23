@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { SessionProvider } from 'next-auth/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { StravaProvider } from '@/lib/auth/strava-context';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { StravaProvider } from '@/strava-context';
 
 // Create a client for React Query
 const queryClient = new QueryClient({

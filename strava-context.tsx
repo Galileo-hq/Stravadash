@@ -2,7 +2,7 @@
 
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { StravaApiClient } from '../api/strava-client';
+import { StravaApiClient } from '@/strava-client';
 
 // Define the context type
 type StravaContextType = {

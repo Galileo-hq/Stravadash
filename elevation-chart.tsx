@@ -1,13 +1,13 @@
 "use client";
 
 import React from 'react';
-import { useActivities } from '@/lib/api/strava-hooks';
-import { MetricChart } from '@/components/metric-chart';
+import { useActivities } from '@/strava-hooks';
+import { MetricChart } from '@/metric-chart';
 import { 
   filterActivitiesByDateRange, 
   getTimeFrameDateRange,
   metersToFeet
-} from '@/lib/api/data-transformers';
+} from '@/data-transformers';
 
 /**
  * Elevation Chart component

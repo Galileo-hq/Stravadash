@@ -11,7 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { formatDate } from '@/lib/api/data-transformers';
+import { formatDate } from '@/data-transformers';
 
 /**
  * Reusable line chart component for visualizing running metrics
@@ -23,7 +23,7 @@ interface MetricChartProps {
   name: string;
   color?: string;
   yAxisLabel?: string;
-  tooltipFormatter?: (value: any) => string;
+  tooltipFormatter?: (value: any) => [React.ReactNode, string];
   height?: number;
 }
 

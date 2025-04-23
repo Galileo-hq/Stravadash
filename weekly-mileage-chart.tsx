@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { useWeeklyMileage } from '@/lib/api/strava-hooks';
-import { MetricChart } from '@/components/metric-chart';
+import { useWeeklyMileage } from '@/strava-hooks';
+import { MetricChart } from '@/metric-chart';
 
 /**
  * Weekly mileage chart component

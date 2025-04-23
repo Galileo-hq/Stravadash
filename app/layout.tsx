@@ -1,6 +1,6 @@
 import React from 'react';
-import { Providers } from '@/components/providers';
-import { AuthRequired } from '@/components/auth-required';
+import { Providers } from '@/providers';
+import { AuthRequired } from '@/auth-required';
 import { Inter } from 'next/font/google';
 import './globals.css';
 

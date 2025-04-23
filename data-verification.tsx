@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { useSession } from 'next-auth/react';
-import { useActivities } from '@/lib/api/strava-hooks';
+import { useActivities } from '@/strava-hooks';
 import { 
   filterActivitiesByDateRange, 
   getTimeFrameDateRange,
   metersToMiles,
   formatDate,
   formatDuration
-} from '@/lib/api/data-transformers';
+} from '@/data-transformers';
 
 /**
  * Data Verification component for testing data accuracy

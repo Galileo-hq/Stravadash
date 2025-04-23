@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from 'react';
-import { WeeklyMileageChart } from '@/components/weekly-mileage-chart';
-import { AveragePaceChart } from '@/components/average-pace-chart';
-import { ElevationChart } from '@/components/elevation-chart';
-import { HeartRateChart } from '@/components/heart-rate-chart';
-import { CadenceChart } from '@/components/cadence-chart';
-import { PowerChart } from '@/components/power-chart';
+import { WeeklyMileageChart } from '@/weekly-mileage-chart';
+import { AveragePaceChart } from '@/average-pace-chart';
+import { ElevationChart } from '@/elevation-chart';
+import { HeartRateChart } from '@/heart-rate-chart';
+import { CadenceChart } from '@/cadence-chart';
+import { PowerChart } from '@/power-chart';
 
 /**
  * Time frame options for the dashboard

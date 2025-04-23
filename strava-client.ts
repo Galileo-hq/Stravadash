@@ -1,4 +1,4 @@
-import { refreshStravaToken } from '../auth/token-refresh';
+import { refreshStravaToken } from '@/token-refresh';
 
 /**
  * API client for Strava

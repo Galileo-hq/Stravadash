@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { useQuery } from 'react-query';
-import { useStrava } from '../auth/strava-context';
+import { useQuery } from '@tanstack/react-query';
+import { useStrava } from '@/strava-context';
 import { 
   filterActivitiesByDateRange, 
   groupActivitiesByWeek, 
@@ -11,24 +11,52 @@ import {
   getTimeFrameDateRange
 } from './data-transformers';
 
+// --- Basic Placeholder Types (Refine later if needed) ---
+interface StravaActivity {
+  id: number;
+  name: string;
+  distance: number;
+  moving_time: number;
+  elapsed_time: number;
+  total_elevation_gain: number;
+  type: string;
+  sport_type: string;
+  start_date: string; // ISO 8601 string
+  average_speed?: number;
+  max_speed?: number;
+  average_cadence?: number;
+  average_heartrate?: number;
+  max_heartrate?: number;
+  average_watts?: number;
+}
+
+interface AthleteProfile {
+  id: number;
+  username: string;
+  firstname: string;
+  lastname: string;
+  profile_medium: string; // URL to medium profile picture
+  profile: string; // URL to large profile picture
+}
+// ------------------------------------------------------
+
 /**
  * Hook to fetch athlete profile data
  */
 export function useAthleteProfile() {
   const { client, isLoading: clientLoading } = useStrava();
   
-  return useQuery(
-    ['athlete-profile'],
-    async () => {
+  return useQuery<AthleteProfile, Error>({
+    queryKey: ['athlete-profile'],
+    queryFn: async (): Promise<AthleteProfile> => {
       if (!client) throw new Error('Strava client not initialized');
-      return client.getAthlete();
+      const profile = await client.getAthlete();
+      return profile as AthleteProfile;
     },
-    {
-      enabled: !!client && !clientLoading,
-      staleTime: 1000 * 60 * 60, // 1 hour
-      cacheTime: 1000 * 60 * 60 * 24, // 24 hours
-    }
-  );
+    enabled: !!client && !clientLoading,
+    staleTime: 1000 * 60 * 60, // 1 hour
+    gcTime: 1000 * 60 * 60 * 24, // 24 hours
+  });
 }
 
 /**
@@ -41,21 +69,23 @@ export function useActivities(timeFrame: string = 'all') {
   
   // Convert dates to Unix timestamps for the API
   const after = startDate ? Math.floor(startDate.getTime() / 1000) : undefined;
-  
-  return useQuery(
-    ['activities', timeFrame],
-    async () => {
+  const before = endDate ? Math.floor(endDate.getTime() / 1000) : undefined;
+
+  return useQuery<StravaActivity[], Error>({
+    queryKey: ['activities', timeFrame, after, before], // Include timestamps in key
+    queryFn: async (): Promise<StravaActivity[]> => {
       if (!client) throw new Error('Strava client not initialized');
       
       // Fetch all pages of activities
       let page = 1;
       const perPage = 100;
-      let allActivities: any[] = [];
+      let allActivities: StravaActivity[] = [];
       let hasMore = true;
       
       while (hasMore) {
         const activities = await client.getActivities({
           after,
+          before,
           page,
           per_page: perPage,
         });
@@ -66,14 +96,18 @@ export function useActivities(timeFrame: string = 'all') {
         hasMore = activities.length === perPage;
         page++;
       }
-      
-      return allActivities;
+
+      // Add explicit type guard
+      if (!Array.isArray(allActivities)) {
+        console.error("Fetched activities data is not an array:", allActivities);
+        return []; // Return empty array on unexpected type
+      }
+
+      return allActivities as StravaActivity[];
     },
-    {
-      enabled: !!client && !clientLoading,
-      staleTime: 1000 * 60 * 5, // 5 minutes
-    }
-  );
+    enabled: !!client && !clientLoading,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 }
 
 /**
@@ -83,19 +117,18 @@ export function useActivities(timeFrame: string = 'all') {
 export function useActivity(activityId: string | undefined) {
   const { client, isLoading: clientLoading } = useStrava();
   
-  return useQuery(
-    ['activity', activityId],
-    async () => {
+  return useQuery<StravaActivity, Error>({
+    queryKey: ['activity', activityId],
+    queryFn: async (): Promise<StravaActivity> => {
       if (!client) throw new Error('Strava client not initialized');
       if (!activityId) throw new Error('Activity ID is required');
       
-      return client.getActivity(activityId);
+      const activity = await client.getActivity(activityId);
+      return activity as StravaActivity;
     },
-    {
-      enabled: !!client && !clientLoading && !!activityId,
-      staleTime: 1000 * 60 * 60, // 1 hour
-    }
-  );
+    enabled: !!client && !clientLoading && !!activityId,
+    staleTime: 1000 * 60 * 60, // 1 hour
+  });
 }
 
 /**

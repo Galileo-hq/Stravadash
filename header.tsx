@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useSession, signOut } from 'next-auth/react';
-import { useAthleteProfile } from '@/lib/api/strava-hooks';
+import { useAthleteProfile } from '@/strava-hooks';
 
 /**
  * Header component for the dashboard
@@ -25,15 +25,15 @@ export function Header() {
             ) : athlete ? (
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
-                  {athlete.profile && (
+                  {athlete?.profile && (
                     <img
                       src={athlete.profile}
-                      alt={`${athlete.firstname} ${athlete.lastname}`}
+                      alt={`${athlete?.firstname ?? ''} ${athlete?.lastname ?? ''}`}
                       className="h-8 w-8 rounded-full"
                     />
                   )}
                   <span className="text-sm font-medium text-gray-700">
-                    {athlete.firstname} {athlete.lastname}
+                    {athlete?.firstname ?? ''} {athlete?.lastname ?? ''}
                   </span>
                 </div>
                 <button

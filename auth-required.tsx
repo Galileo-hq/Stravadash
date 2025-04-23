@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useSession, signIn } from 'next-auth/react';
-import { useStrava } from '@/lib/auth/strava-context';
+import { useStrava } from '@/strava-context';
 
 /**
  * Authentication wrapper component that ensures the user is authenticated
