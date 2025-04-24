@@ -12,7 +12,10 @@ import {
 } from './data-transformers';
 
 // --- Basic Placeholder Types (Refine later if needed) ---
-interface StravaActivity {
+/**
+ * Strava Activity interface
+ */
+export interface StravaActivity {
   id: number;
   name: string;
   distance: number;
@@ -103,10 +106,14 @@ export function useActivities(timeFrame: string = 'all') {
         return []; // Return empty array on unexpected type
       }
 
-      return allActivities as StravaActivity[];
+      // Filter for runs only
+      const runActivities = allActivities.filter(activity => activity.type === 'Run');
+
+      return runActivities as StravaActivity[];
     },
     enabled: !!client && !clientLoading,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: Infinity, // Keep fetched activities fresh indefinitely
+    gcTime: 1000 * 60 * 60 * 24, // Garbage collect after 24 hours
   });
 }
 
@@ -178,11 +185,10 @@ export function useWeeklyAveragePace(timeFrame: string = 'year') {
     const weeklyPace = calculateWeeklyAveragePace(weeklyActivities);
     
     // Convert to array format for charts
-    return Object.entries(weeklyPace).map(([week, pace]) => ({
+    return Object.entries(weeklyPace).map(([week, paceData]) => ({
       week,
-      pace,
-      // Convert pace string (MM:SS) to numeric value for charting
-      paceValue: paceStringToSeconds(pace) / 60,
+      pace: paceData.pace,
+      paceValue: paceData.paceValue, // Use pre-calculated value
     })).sort((a, b) => a.week.localeCompare(b.week));
   }, [activities, timeFrame]);
   

@@ -22,20 +22,24 @@ export function Header() {
           <div className="flex items-center">
             {isLoading ? (
               <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse"></div>
-            ) : athlete ? (
+            ) : session ? (
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  {athlete?.profile && (
-                    <img
-                      src={athlete.profile}
-                      alt={`${athlete?.firstname ?? ''} ${athlete?.lastname ?? ''}`}
-                      className="h-8 w-8 rounded-full"
-                    />
-                  )}
-                  <span className="text-sm font-medium text-gray-700">
-                    {athlete?.firstname ?? ''} {athlete?.lastname ?? ''}
-                  </span>
-                </div>
+                {/* Athlete profile section (only show if athlete loaded) */}
+                {athlete && (
+                  <div className="flex items-center space-x-2">
+                    {athlete.profile && (
+                      <img
+                        src={athlete.profile}
+                        alt={`${athlete.firstname ?? ''} ${athlete.lastname ?? ''}`}
+                        className="h-8 w-8 rounded-full"
+                      />
+                    )}
+                    <span className="text-sm font-medium text-gray-700">
+                      {athlete.firstname ?? ''} {athlete.lastname ?? ''}
+                    </span>
+                  </div>
+                )}
+                {/* Sign out button (always show if session exists) */}
                 <button
                   onClick={() => signOut()}
                   className="text-sm text-gray-500 hover:text-gray-700"
@@ -44,9 +48,7 @@ export function Header() {
                 </button>
               </div>
             ) : (
-              <div className="text-sm text-gray-500">
-                {session?.user?.name || 'Authenticated User'}
-              </div>
+              <span className="text-sm text-gray-500">Not signed in</span>
             )}
           </div>
         </div>

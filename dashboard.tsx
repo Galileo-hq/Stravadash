@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { WeeklyMileageChart } from '@/weekly-mileage-chart';
 import { AveragePaceChart } from '@/average-pace-chart';
 import { ElevationChart } from '@/elevation-chart';
 import { HeartRateChart } from '@/heart-rate-chart';
 import { CadenceChart } from '@/cadence-chart';
 import { PowerChart } from '@/power-chart';
+import { useActivities } from '@/strava-hooks';
+import { getTimeFrameDateRange } from '@/data-transformers';
 
 /**
  * Time frame options for the dashboard
@@ -40,23 +42,39 @@ export function Dashboard() {
   const [selectedTimeFrame, setSelectedTimeFrame] = useState('month');
   const [selectedMetric, setSelectedMetric] = useState('mileage');
 
+  // Fetch activities once here based on the selected time frame
+  const { data: activities, isLoading, error } = useActivities(selectedTimeFrame);
+
+  // Calculate startDate and endDate based on the selected time frame
+  const { startDate, endDate } = getTimeFrameDateRange(selectedTimeFrame);
+
+  // Memoize the selected time frame label for the loading message
+  const selectedTimeFrameLabel = useMemo(() => {
+    return TIME_FRAME_OPTIONS.find(opt => opt.value === selectedTimeFrame)?.label || selectedTimeFrame;
+  }, [selectedTimeFrame]);
+
+  // Memoize the check for long time frames
+  const isLongTimeFrame = useMemo(() => {
+    return ['year', 'two_years', 'three_years', 'all'].includes(selectedTimeFrame);
+  }, [selectedTimeFrame]);
+
   // Render the selected metric chart
   const renderMetricChart = () => {
     switch (selectedMetric) {
       case 'mileage':
-        return <WeeklyMileageChart timeFrame={selectedTimeFrame} />;
+        return <WeeklyMileageChart timeFrame={selectedTimeFrame} activities={activities} startDate={startDate} endDate={endDate} />;
       case 'pace':
-        return <AveragePaceChart timeFrame={selectedTimeFrame} />;
+        return <AveragePaceChart timeFrame={selectedTimeFrame} activities={activities} startDate={startDate} endDate={endDate} />;
       case 'elevation':
-        return <ElevationChart timeFrame={selectedTimeFrame} />;
+        return <ElevationChart timeFrame={selectedTimeFrame} activities={activities} startDate={startDate} endDate={endDate} />;
       case 'heart_rate':
-        return <HeartRateChart timeFrame={selectedTimeFrame} />;
+        return <HeartRateChart timeFrame={selectedTimeFrame} activities={activities} startDate={startDate} endDate={endDate} />;
       case 'cadence':
-        return <CadenceChart timeFrame={selectedTimeFrame} />;
+        return <CadenceChart timeFrame={selectedTimeFrame} activities={activities} startDate={startDate} endDate={endDate} />;
       case 'power':
-        return <PowerChart timeFrame={selectedTimeFrame} />;
+        return <PowerChart timeFrame={selectedTimeFrame} activities={activities} startDate={startDate} endDate={endDate} />;
       default:
-        return <WeeklyMileageChart timeFrame={selectedTimeFrame} />;
+        return <WeeklyMileageChart timeFrame={selectedTimeFrame} activities={activities} startDate={startDate} endDate={endDate} />;
     }
   };
 
@@ -99,8 +117,22 @@ export function Dashboard() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
-        {renderMetricChart()}
+      <div className="bg-white rounded-lg shadow-md p-6 min-h-[300px] flex items-center justify-center">
+        {isLoading ? (
+          <div className="text-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] text-blue-600 motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
+              <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+            </div>
+            <p className="mt-2 text-gray-600">Loading activities...</p>
+            {isLongTimeFrame && (
+              <p className="text-sm text-gray-500">(Fetching {selectedTimeFrameLabel} data, this may take a moment)</p>
+            )}
+          </div>
+        ) : error ? (
+          <p className="text-red-600 text-center">Error loading activities: {error.message}</p>
+        ) : (
+          renderMetricChart()
+        )}
       </div>
     </div>
   );

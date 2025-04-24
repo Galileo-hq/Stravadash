@@ -10,12 +10,17 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Label,
+  TooltipProps,
 } from 'recharts';
 import { formatDate } from '@/data-transformers';
 
 /**
  * Reusable line chart component for visualizing running metrics
  */
+type ValueType = string | number | (string | number)[];
+type NameType = string | number;
+
 interface MetricChartProps {
   data: any[];
   dataKey: string;
@@ -23,7 +28,9 @@ interface MetricChartProps {
   name: string;
   color?: string;
   yAxisLabel?: string;
-  tooltipFormatter?: (value: any) => [React.ReactNode, string];
+  tooltipFormatter?: TooltipProps<ValueType, NameType>['formatter'];
+  yAxisMin?: number;
+  yAxisMax?: number;
   height?: number;
 }
 
@@ -35,6 +42,8 @@ export function MetricChart({
   color = '#FC4C02',
   yAxisLabel,
   tooltipFormatter,
+  yAxisMin,
+  yAxisMax,
   height = 400,
 }: MetricChartProps) {
   if (!data || data.length === 0) {
@@ -73,9 +82,10 @@ export function MetricChart({
             <YAxis 
               label={yAxisLabel ? { value: yAxisLabel, angle: -90, position: 'insideLeft' } : undefined}
               tick={{ fontSize: 12 }}
+              domain={yAxisMin !== undefined && yAxisMax !== undefined ? [yAxisMin, yAxisMax] : undefined}
             />
             <Tooltip 
-              formatter={tooltipFormatter || ((value) => [value, name])}
+              formatter={tooltipFormatter} 
               labelFormatter={(label) => `Date: ${label}`}
             />
             <Legend />
